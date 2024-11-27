@@ -4,7 +4,7 @@ import { deleteImageFromShopify } from "../infra/shopifyApi";
 import { groupBy, sortBy } from "./utils";
 
 
-export async function deleteDuplicateImages(): Promise<void> {
+export async function deleteDuplicateImagesController(): Promise<void> {
   const duplicateImages = await fetchDuplicatedShopifyBookImage()
   const groupedByBookId = groupBy(duplicateImages, 'book_id')
   for (const bookId of groupedByBookId) {
