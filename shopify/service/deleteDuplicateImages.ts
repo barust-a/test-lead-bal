@@ -26,7 +26,7 @@ function removeIncompleteGroup(bookImages: ShopifyBookImageDb[]): ShopifyBookIma
 
 function extractImagesToDelete(bookImages: ShopifyBookImageDb[]): ShopifyBookImageDb[] {
   const sorted = sortBy(bookImages, 'desc', 'created_at')
-  return sorted.shift() // remove not to delete
+  return sorted.shift() // we keep last image in shopify
 }
 
 
