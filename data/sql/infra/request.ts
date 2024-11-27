@@ -1,14 +1,8 @@
 import { generateRandomNumber } from "../../../shopify/service/utils"
-
-/** this interface represent schema of sql table */
-export interface ShopifyBookImageDb {
-  book_id: string,
-  image_id: string,
-  created_at: Date
-}
+import { ShopifyBookImageDb } from "../domain/tablesSchemas"
 
 /** general sql caller can return anything */
-async function sql(_query: string): Promise<any> {
+async function sql(_query: string, _args?: any[]): Promise<any> {
   const randomNumber = generateRandomNumber(1_000)
   return new Promise((resolve, reject) => {
     if (randomNumber === 100) {
@@ -18,8 +12,15 @@ async function sql(_query: string): Promise<any> {
   })
 }
 
+export async function deleteShopifyBookImageByIds(ids: string[]): Promise<void> {
+  const query = `DELETE FROM shopifyBookImage
+    WHERE id = any($1)`
+
+  await sql(query, [ids])
+}
+
 /** schema of tab */
-export async function fetchDuplicatedImages(): Promise<string[]> {
+export async function fetchDuplicatedShopifyBookImage(): Promise<ShopifyBookImageDb[]> {
   const query = `SELECT book_id, image_id, created_at
     FROM shopifyBookImage
     WHERE book_id IN (
@@ -34,3 +35,4 @@ export async function fetchDuplicatedImages(): Promise<string[]> {
 
   return await sql(query)
 }
+
