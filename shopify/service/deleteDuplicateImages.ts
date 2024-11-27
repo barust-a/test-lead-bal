@@ -1,5 +1,6 @@
 import { ShopifyBookImageDb } from "../../data/sql/domain/tablesSchemas";
-import { fetchDuplicatedShopifyBookImage } from "../../data/sql/infra/request";
+import { deleteShopifyBookImageByIds, fetchDuplicatedShopifyBookImage } from "../../data/sql/infra/shopifyBookImage.repository";
+import { deleteImageFromShopify } from "../infra/shopifyApi";
 import { groupBy, sortBy } from "./utils";
 
 
@@ -8,12 +9,22 @@ export async function deleteDuplicateImages(): Promise<void> {
   const groupedByBookId = groupBy(duplicateImages, 'book_id')
   for (const bookId of groupedByBookId) {
     const booksToDelete = filterImageToDelete(groupedByBookId[bookId])
-
+    await callDeleteImageApiAndDeleteRowInDB(booksToDelete)
   }
 
 }
 
-function filterImageToDelete(bookImage: ShopifyBookImageDb[]): ShopifyBookImageDb[] {
-  const sorted = sortBy(bookImage, 'desc')
+function filterImageToDelete(bookImages: ShopifyBookImageDb[]): ShopifyBookImageDb[] {
+  const sorted = sortBy(bookImages, 'desc')
   return sorted.shift() // remove not to delete
+}
+
+
+async function callDeleteImageApiAndDeleteRowInDB(bookImages: ShopifyBookImageDb[]): Promise<void> {
+  for (const bookImage of bookImages) {
+    const isSuccess = await deleteImageFromShopify(bookImage.image_id)
+    if (isSuccess) {
+      await deleteShopifyBookImageByIds([bookImage.image_id])
+    }
+  }
 }

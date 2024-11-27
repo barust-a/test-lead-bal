@@ -6,6 +6,7 @@ export async function deleteImageFromShopify(_imageId: string): Promise<boolean>
   return new Promise((resolve) => {
     setTimeout(() => {
       if (randomNumber === 3) {
+        console.log('call is failing -> error reason here')
         resolve(false)
       }
       resolve(true);
